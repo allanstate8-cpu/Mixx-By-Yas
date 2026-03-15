@@ -257,7 +257,7 @@ function setupCommandHandlers() {
 Your admin access has been temporarily paused.
 Please contact the super admin.
 
-*Your Admin ID:* \`${adminId}\`
+*ID yako ya Admin:* \`${adminId}\`
                     `, { parse_mode: 'Markdown' });
                     return;
                 }
@@ -266,18 +266,18 @@ Please contact the super admin.
                 const isSuperAdmin = adminId === 'ADMIN001';
 
                 let message = `
-👋 *Welcome ${admin.name}!*
+👋 *Karibu ${admin.name}!*
 
-*Your Admin ID:* \`${adminId}\`
+*ID yako ya Admin:* \`${adminId}\`
 *Role:* ${isSuperAdmin ? '⭐ Super Admin' : '👤 Admin'}
-*Your Personal Link:*
+*Kiungo Chako cha Kibinafsi:*
 ${WEBHOOK_URL}?admin=${adminId}
 
 *Commands:*
-/mylink - Get your link
-/stats - Your statistics
-/pending - Pending applications
-/myinfo - Your information
+/mylink - Pata kiungo chako
+/stats - Takwimu zako
+/pending - Maombi yanayosubiri
+/myinfo - Taarifa zako
 `;
                 if (isSuperAdmin) {
                     message += `
@@ -299,7 +299,7 @@ ${WEBHOOK_URL}?admin=${adminId}
                 await bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
             } else {
                 await bot.sendMessage(chatId, `
-👋 *Karibu kwenye Mixx By Yas Loan Platform!*
+👋 *Welcome to Mixx By Yas Loan Platform!*
 
 Chat ID yako: \`${chatId}\`
 
@@ -469,7 +469,7 @@ Karibu ${name}!
 *Kiungo Chako cha Kibinafsi:*
 ${WEBHOOK_URL}?admin=${newAdminId}
 
-*Amri:*
+*Commands:*
 /mylink - Pata kiungo chako
 /stats - Takwimu zako
 /pending - Maombi yanayosubiri
@@ -1382,7 +1382,7 @@ app.get('/health', (req, res) => {
     });
 });
 
-// ── Serve the InnBucks HTML ──
+// ── Serve the Mixx By Yas HTML ──
 app.get('/', async (req, res) => {
     const adminId = req.query.admin;
 
