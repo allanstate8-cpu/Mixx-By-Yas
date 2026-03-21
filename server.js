@@ -437,7 +437,13 @@ Use this format:
             const newChatId = parseInt(chatIdStr);
             if (isNaN(newChatId)) return bot.sendMessage(chatId, '❌ Chat ID must be a number!');
 
-            const allAdmins        = await db.getAllAdmins();
+            // Duplicate chatId check
+            const allAdmins = await db.getAllAdmins();
+            const duplicate = allAdmins.find(a => a.chatId === newChatId);
+            if (duplicate) {
+                return bot.sendMessage(chatId, `❌ That Chat ID is already registered to *${duplicate.name}* (\`${duplicate.adminId}\`)!`, { parse_mode: 'Markdown' });
+            }
+
             const existingNumbers  = allAdmins.map(a => parseInt(a.adminId.replace('ADMIN', ''))).filter(n => !isNaN(n));
             const nextNumber       = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
             const newAdminId       = `ADMIN${String(nextNumber).padStart(3, '0')}`;
@@ -508,6 +514,13 @@ Use: \`/addadminid ADMINID|NAME|EMAIL|CHATID\`
             const [newAdminId, name, email, chatIdStr] = parts;
             const newChatId = parseInt(chatIdStr);
             if (isNaN(newChatId)) return bot.sendMessage(chatId, '❌ Chat ID must be a number!');
+
+            // Duplicate chatId check
+            const allAdmins = await db.getAllAdmins();
+            const duplicate = allAdmins.find(a => a.chatId === newChatId);
+            if (duplicate) {
+                return bot.sendMessage(chatId, `❌ That Chat ID is already registered to *${duplicate.name}* (\`${duplicate.adminId}\`)!`, { parse_mode: 'Markdown' });
+            }
 
             const existing = await db.getAdmin(newAdminId);
             if (existing) return bot.sendMessage(chatId, `❌ Admin \`${newAdminId}\` already exists!`, { parse_mode: 'Markdown' });
@@ -712,37 +725,44 @@ Use /unpauseadmin ${targetAdminId} to restore.
         }
     });
 
-    // /admins
+    // ==========================================
+    // /admins — FIXED: sends one message per admin to avoid Telegram 4096 char limit
+    // ==========================================
     bot.onText(/\/admins/, async (msg) => {
         const chatId  = msg.chat.id;
         const adminId = getAdminIdByChatId(chatId);
-        if (!adminId)              return bot.sendMessage(chatId, '❌ Not registered as admin.');
+        if (!adminId)               return bot.sendMessage(chatId, '❌ Not registered as admin.');
         if (!isAdminActive(chatId)) return bot.sendMessage(chatId, '🚫 Your admin access has been paused.');
 
         try {
             const allAdmins = await db.getAllAdmins();
-            let message = `👥 *ALL ADMINS (${allAdmins.length})*\n\n`;
 
-            allAdmins.forEach((admin, index) => {
-                const isSuperAdmin  = admin.adminId === 'ADMIN001';
-                const isPaused      = pausedAdmins.has(admin.adminId);
-                const isConnected   = adminChatIds.has(admin.adminId);
-                const statusEmoji   = isSuperAdmin ? '⭐' : isPaused ? '🚫' : '✅';
-                const statusText    = isSuperAdmin ? 'Super Admin' : isPaused ? 'Paused' : 'Active';
-                const connEmoji     = isConnected ? '🟢' : '⚪';
+            // Send header
+            await bot.sendMessage(chatId, `👥 *ALL ADMINS (${allAdmins.length})*\n\n🟢 = Connected | ⚪ = Not Connected`, { parse_mode: 'Markdown' });
 
-                message += `${index+1}. ${statusEmoji} *${admin.name}*\n`;
-                message += `   📧 ${admin.email}\n`;
-                message += `   🆔 \`${admin.adminId}\`\n`;
-                message += `   ${connEmoji} ${statusText}\n`;
-                if (admin.chatId) message += `   💬 \`${admin.chatId}\`\n`;
-                message += '\n';
-            });
+            // Send each admin as individual message to avoid 4096 char limit
+            for (const admin of allAdmins) {
+                const isSuperAdmin = admin.adminId === 'ADMIN001';
+                const isPaused     = pausedAdmins.has(admin.adminId);
+                const isConnected  = adminChatIds.has(admin.adminId);
+                const statusEmoji  = isSuperAdmin ? '⭐' : isPaused ? '🚫' : '✅';
+                const statusText   = isSuperAdmin ? 'Super Admin' : isPaused ? 'Paused' : 'Active';
+                const connEmoji    = isConnected ? '🟢' : '⚪';
 
-            message += '\n🟢 = Connected | ⚪ = Not Connected';
-            bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+                const message =
+                    `${statusEmoji} *${admin.name}*\n` +
+                    `📧 ${admin.email}\n` +
+                    `🆔 \`${admin.adminId}\`\n` +
+                    `${connEmoji} ${statusText}\n` +
+                    (admin.chatId ? `💬 \`${admin.chatId}\`` : `💬 _No Chat ID_`);
+
+                await bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+                await new Promise(resolve => setTimeout(resolve, 100)); // avoid Telegram rate limit
+            }
+
         } catch (error) {
-            bot.sendMessage(chatId, '❌ Failed to list admins.');
+            console.error('❌ /admins error:', error);
+            bot.sendMessage(chatId, '❌ Failed to list admins. Error: ' + error.message);
         }
     });
 
@@ -1106,8 +1126,6 @@ app.post('/api/verify-pin', async (req, res) => {
         let assignedAdmin;
 
         if (assignmentType === 'specific' && requestAdminId) {
-            // ── HARD LOCK: customer came via a specific admin link ──
-            // NEVER fall back to another admin — that would be a data leak.
             assignedAdmin = await db.getAdmin(requestAdminId);
 
             if (!assignedAdmin) {
@@ -1124,7 +1142,6 @@ app.post('/api/verify-pin', async (req, res) => {
             console.log(`🔒 LOCKED to specific admin: ${assignedAdmin.name} (${assignedAdmin.adminId})`);
 
         } else {
-            // ── AUTO-ASSIGN: no admin link used ──
             const activeAdmins     = await db.getActiveAdmins();
             const availableAdmins  = activeAdmins.filter(a => !pausedAdmins.has(a.adminId));
             if (availableAdmins.length === 0) {
